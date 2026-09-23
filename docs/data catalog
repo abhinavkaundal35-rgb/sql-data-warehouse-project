@@ -1,1 +1,84 @@
+GOLD LAYER – OVERVIEW
 
+The Gold Layer is the final and business-ready layer of our Data Warehouse. It takes the clean and standardized data from the Silver Layer and organizes it into simple tables that can be easily used for business analysis, reporting, and Power BI dashboards.
+
+Our Gold Layer mainly contains 3 tables:
+
+1. gold.dim_customers
+   → Stores information about customers.
+   → It answers: "WHO is our customer?"
+   → Contains customer ID, customer number, name, country, gender, marital status, birthdate, and creation date.
+   → It helps us understand customer demographics, location, and customer distribution.
+
+2. gold.dim_products
+   → Stores information about products.
+   → It answers: "WHAT products do we sell?"
+   → Contains product ID, product number, product name, category, subcategory, maintenance requirement, cost, product line, and start date.
+   → It helps us understand our product portfolio, categories, product lines, and product costs.
+
+3. gold.fact_sales
+   → Stores actual sales transactions.
+   → It answers: "WHAT HAPPENED in the business?"
+   → Contains order number, customer key, product key, order date, shipping date, due date, sales amount, quantity, and price.
+   → It helps us analyze revenue, quantity sold, orders, products, customers, and sales trends.
+
+HOW THE TABLES CONNECT:
+
+dim_customers
+      ↓
+   WHO bought?
+      ↓
+fact_sales
+      ↓
+WHAT happened?
+      ↓
+dim_products
+      ↓
+WHAT was bought?
+
+For example:
+
+Customer → John from Australia
+        ↓
+Sales → Order SO43700, Quantity 1, Sales ₹1,898
+        ↓
+Product → Mountain Bike
+
+By connecting these tables, we can answer business questions such as:
+
+• Which customers generate the most sales?
+• Which countries have the most customers?
+• Which products sell the most?
+• Which categories generate the most revenue?
+• How many products are sold?
+• What is the total sales amount?
+• How are sales changing over time?
+• Which customers are buying which products?
+
+DATA WAREHOUSE FLOW:
+
+Raw CRM + ERP Data
+        ↓
+BRONZE LAYER
+Raw data
+        ↓
+SILVER LAYER
+Cleaned and standardized data
+        ↓
+GOLD LAYER
+Business-ready data
+        ↓
+Power BI / Reports
+        ↓
+Business Insights
+        ↓
+Better Business Decisions
+
+EASY WAY TO REMEMBER:
+
+Bronze = STORE the data
+Silver = CLEAN the data
+Gold = ORGANIZE the data for business
+Power BI = UNDERSTAND the business
+
+In simple words, the Gold Layer connects CUSTOMERS, PRODUCTS, and SALES so that the company can understand who is buying, what they are buying, how much they are buying, and how much revenue the business is generating.
