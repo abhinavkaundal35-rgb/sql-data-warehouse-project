@@ -1,1 +1,216 @@
+-- ============================================================
+-- DATA WAREHOUSE - SILVER LAYER
+-- Purpose:
+-- This script creates the tables required for the Silver Layer.
+-- The Silver Layer stores cleaned, standardized, and transformed
+-- data coming from the Bronze Layer.
+-- ============================================================
 
+
+-- use master;
+-- Create DATABASE DataWarehouse;
+
+-- Switch to the DataWarehouse database so all Silver Layer
+-- objects are created inside the correct database.
+USE DataWarehouse;
+GO
+
+
+-- ============================================================
+-- SCHEMA CREATION
+-- ============================================================
+
+-- The schemas were already created during the database setup.
+-- They are kept commented here for reference.
+
+-- Create Schema bronze;
+-- GO
+
+-- Create Schema Silver;
+-- GO
+
+-- Create Schema gold;
+-- GO
+
+
+-- ============================================================
+-- CREATE SILVER LAYER TABLES
+-- ============================================================
+-- Purpose:
+-- Create structured tables to store cleaned and transformed
+-- data from the Bronze Layer.
+--
+-- Before creating each table, OBJECT_ID checks whether the table
+-- already exists. If it exists, it is dropped and recreated.
+-- This makes the script easy to rerun during development.
+--
+-- dwh_create_date:
+-- Automatically records the date and time when each record
+-- is inserted into the Silver Layer.
+-- ============================================================
+
+
+-- ============================================================
+-- 1. CRM CUSTOMER INFORMATION
+-- ============================================================
+-- Purpose:
+-- Stores cleaned customer information received from the
+-- Bronze CRM customer table.
+-- ============================================================
+
+-- Check whether the Silver customer table already exists.
+-- If it exists, drop it so the table can be recreated.
+IF OBJECT_ID('silver.crm_cust_info', 'U') IS NOT NULL
+    DROP TABLE silver.crm_cust_info;
+
+-- Create the Silver CRM Customer table.
+CREATE TABLE silver.crm_cust_info (
+    cst_id               INT,
+    cst_key              NVARCHAR(50),
+    cst_firstname        NVARCHAR(50),
+    cst_lastname         NVARCHAR(50),
+    cst_material_status  NVARCHAR(50),
+    cst_gndr             NVARCHAR(50),
+    cst_create_date      DATE,
+
+    -- Audit column used to track when the record was loaded
+    -- into the Silver Layer.
+    dwh_create_date      DATETIME2 DEFAULT GETDATE()
+);
+
+
+-- ============================================================
+-- 2. CRM PRODUCT INFORMATION
+-- ============================================================
+-- Purpose:
+-- Stores cleaned and standardized product information
+-- received from the Bronze CRM product table.
+-- ============================================================
+
+IF OBJECT_ID('silver.crm_prd_info', 'U') IS NOT NULL
+    DROP TABLE silver.crm_prd_info;
+
+CREATE TABLE silver.crm_prd_info (
+    prd_id          INT,
+    prd_key         NVARCHAR(50),
+    prd_nm          NVARCHAR(50),
+    prd_cost        INT,
+    prd_line        NVARCHAR(50),
+    prd_start_dt    DATETIME,
+    prd_end_dt      DATETIME,
+
+    -- Records the date and time when the record
+    -- was loaded into the Silver Layer.
+    dwh_create_date DATETIME2 DEFAULT GETDATE()
+);
+
+
+-- ============================================================
+-- 3. CRM SALES DETAILS
+-- ============================================================
+-- Purpose:
+-- Stores cleaned and standardized sales transaction data.
+--
+-- In the Silver Layer, the order, shipping, and due dates
+-- are stored as DATE values instead of the original raw
+-- integer date format from the Bronze Layer.
+-- ============================================================
+
+IF OBJECT_ID('silver.crm_sales_details', 'U') IS NOT NULL
+    DROP TABLE silver.crm_sales_details;
+
+CREATE TABLE silver.crm_sales_details (
+    sls_ord_num  NVARCHAR(50),
+    sls_prd_key  NVARCHAR(50),
+    sls_cust_id  INT,
+
+    -- Converted sales dates are stored as DATE
+    -- in the Silver Layer.
+    sls_order_dt  DATE,
+    sls_ship_dt   DATE,
+    sls_due_dt    DATE,
+
+    sls_sales     INT,
+    sls_quantity  INT,
+    sls_price     INT,
+
+    -- Audit column showing when the record entered
+    -- the Silver Layer.
+    dwh_create_date DATETIME2 DEFAULT GETDATE()
+);
+
+
+-- ============================================================
+-- 4. ERP LOCATION
+-- ============================================================
+-- Purpose:
+-- Stores cleaned customer/location information received
+-- from the ERP source system.
+-- ============================================================
+
+IF OBJECT_ID('silver.erp_loc_a101', 'U') IS NOT NULL
+    DROP TABLE silver.erp_loc_a101;
+
+CREATE TABLE silver.erp_loc_a101 (
+    cid   NVARCHAR(50),
+    cntry NVARCHAR(50),
+
+    -- Records Silver Layer load timestamp.
+    dwh_create_date DATETIME2 DEFAULT GETDATE()
+);
+
+
+-- ============================================================
+-- 5. ERP CUSTOMER
+-- ============================================================
+-- Purpose:
+-- Stores cleaned ERP customer information such as
+-- customer ID, birth date, and gender.
+-- ============================================================
+
+IF OBJECT_ID('silver.erp_cust_az12', 'U') IS NOT NULL
+    DROP TABLE silver.erp_cust_az12;
+
+CREATE TABLE silver.erp_cust_az12 (
+    cid   NVARCHAR(50),
+    bdate DATE,
+    gen   NVARCHAR(50),
+
+    -- Records when the record was loaded into
+    -- the Silver Layer.
+    dwh_create_date DATETIME2 DEFAULT GETDATE()
+);
+
+
+-- ============================================================
+-- 6. ERP PRODUCT CATEGORY
+-- ============================================================
+-- Purpose:
+-- Stores cleaned product category information received
+-- from the ERP product-category source.
+-- ============================================================
+
+IF OBJECT_ID('silver.erp_px_cat', 'U') IS NOT NULL
+    DROP TABLE silver.erp_px_cat;
+
+CREATE TABLE silver.erp_px_cat (
+    id          NVARCHAR(50),
+    cat         NVARCHAR(50),
+    subcat      NVARCHAR(50),
+    maintenance NVARCHAR(50),
+
+    -- Records when the record was loaded into
+    -- the Silver Layer.
+    dwh_create_date DATETIME2 DEFAULT GETDATE()
+);
+
+
+-- ============================================================
+-- FINAL DATABASE CHECK
+-- ============================================================
+-- Purpose:
+-- Confirms that the SQL script is running against the
+-- intended DataWarehouse database.
+-- ============================================================
+
+SELECT DB_NAME() AS CurrentDatabase;
